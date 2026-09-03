@@ -1,0 +1,61 @@
+# hdl-docker
+
+A Docker image bundling [Yosys](https://github.com/YosysHQ/yosys) and
+[GHDL](https://github.com/ghdl/ghdl), with GHDL wired in as a Yosys
+synthesis plugin via
+[ghdl-yosys-plugin](https://github.com/ghdl/ghdl-yosys-plugin). This lets
+you synthesize VHDL designs directly with `yosys -m ghdl`.
+
+## Image
+
+Published to Docker Hub as [`ru551n/hdl-docker`](https://hub.docker.com/r/ru551n/hdl-docker).
+
+Tags:
+- `latest` — most recent tagged release
+- `vX.Y.Z` — a specific release (matches the git tag)
+
+## Usage
+
+```sh
+docker run --rm -it -v "$PWD":/work ru551n/hdl-docker bash
+
+# Inside the container:
+ghdl --version
+yosys -m ghdl -p 'ghdl design.vhdl -e top; synth_ice40 -json design.json'
+```
+
+Or run a single command directly:
+
+```sh
+docker run --rm -v "$PWD":/work ru551n/hdl-docker \
+    yosys -m ghdl -p 'ghdl design.vhdl -e top; synth_ice40 -json design.json'
+```
+
+## Components & versions
+
+Pinned in [`Dockerfile`](./Dockerfile) build args:
+
+| Component          | Source                                                          |
+|---------------------|------------------------------------------------------------------|
+| GHDL                 | prebuilt release tarball (`mcode` backend)                       |
+| Yosys                | built from source at a pinned tag                                 |
+| ghdl-yosys-plugin    | built from source against the GHDL/Yosys above, at a pinned ref  |
+
+## Building locally
+
+```sh
+docker build -t hdl-docker .
+```
+
+## Releasing
+
+Pushing a git tag matching `v*` (e.g. `v1.0.0`) triggers
+[`.github/workflows/docker-publish.yml`](./.github/workflows/docker-publish.yml),
+which builds the image and pushes `ru551n/hdl-docker:vX.Y.Z` and
+`ru551n/hdl-docker:latest` to Docker Hub.
+
+This requires the following repository secrets to be set (Settings ->
+Secrets and variables -> Actions):
+
+- `DOCKERHUB_USERNAME`
+- `DOCKERHUB_TOKEN` — a Docker Hub [access token](https://hub.docker.com/settings/security)
