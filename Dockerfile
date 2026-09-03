@@ -92,6 +92,7 @@ LABEL org.opencontainers.image.title="hdl-docker" \
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libffi8 zlib1g libtcl8.6 libreadline8 libtinfo6 ca-certificates \
+        libgnat-13 \
     && rm -rf /var/lib/apt/lists/* \
     && useradd --create-home --shell /bin/bash hdl
 
