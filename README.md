@@ -1,11 +1,15 @@
 # hdl-docker
 
 A Docker image bundling [Yosys](https://github.com/YosysHQ/yosys),
-[GHDL](https://github.com/ghdl/ghdl) and [NVC](https://github.com/nickg/nvc).
+[GHDL](https://github.com/ghdl/ghdl), [NVC](https://github.com/nickg/nvc),
+[vhdl_ls](https://github.com/VHDL-LS/rust_hdl) and
+[veridian](https://github.com/vivekmalneedi/veridian).
 GHDL is wired in as a Yosys synthesis plugin via
 [ghdl-yosys-plugin](https://github.com/ghdl/ghdl-yosys-plugin), so you can
 synthesize VHDL designs directly with `yosys -m ghdl`. NVC is included as a
 fast, standalone VHDL simulator alongside GHDL's own simulation mode.
+vhdl_ls and veridian are language servers (VHDL and SystemVerilog
+respectively) for editor/IDE integration.
 
 ## Image
 
@@ -27,6 +31,10 @@ yosys -m ghdl -p 'ghdl design.vhdl -e top; synth_ice40 -json design.json'
 
 # Simulate with NVC instead of/in addition to GHDL:
 nvc -a design.vhdl -e top -r
+
+# Language servers (for editor/IDE integration, not typically run by hand):
+vhdl_ls --help
+veridian --help
 ```
 
 Or run a single command directly:
@@ -46,6 +54,12 @@ Pinned in [`Dockerfile`](./Dockerfile) build args:
 | Yosys                | built from source at a pinned tag                                 |
 | ghdl-yosys-plugin    | built from source against the GHDL/Yosys above, at a pinned ref  |
 | NVC                  | prebuilt `.deb` release package                                  |
+| vhdl_ls              | prebuilt release zip                                              |
+| veridian             | built from source at a pinned commit (no stable releases exist)  |
+
+Install convention: use a prebuilt release when the upstream project
+publishes one for Linux x86_64/ubuntu24.04; otherwise build from source at a
+pinned tag/commit.
 
 ## Building locally
 
