@@ -1,0 +1,54 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "schedule": ["before 6am on monday"],
+  "labels": ["dependencies"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["^Dockerfile$"],
+      "matchStrings": ["ARG GHDL_VERSION=(?<currentValue>.*)\\n"],
+      "depNameTemplate": "ghdl/ghdl",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["^Dockerfile$"],
+      "matchStrings": ["ARG YOSYS_VERSION=(?<currentValue>.*)\\n"],
+      "depNameTemplate": "YosysHQ/yosys",
+      "datasourceTemplate": "github-tags"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["^Dockerfile$"],
+      "matchStrings": ["ARG GHDL_YOSYS_PLUGIN_REF=(?<currentValue>.*)\\n"],
+      "depNameTemplate": "ghdl/ghdl-yosys-plugin",
+      "datasourceTemplate": "github-tags"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["^Dockerfile$"],
+      "matchStrings": ["ARG NVC_VERSION=(?<currentValue>.*)\\n"],
+      "depNameTemplate": "nickg/nvc",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^r(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["^Dockerfile$"],
+      "matchStrings": ["ARG VHDL_LS_VERSION=(?<currentValue>.*)\\n"],
+      "depNameTemplate": "VHDL-LS/rust_hdl",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["^Dockerfile$"],
+      "matchStrings": ["ARG VERIDIAN_REF=(?<currentDigest>.*)\\n"],
+      "depNameTemplate": "veridian",
+      "packageNameTemplate": "https://github.com/vivekmalneedi/veridian.git",
+      "datasourceTemplate": "git-refs"
+    }
+  ]
+}
