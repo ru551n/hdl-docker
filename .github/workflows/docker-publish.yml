@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - "v*"
+    branches:
+      - main
   workflow_dispatch: {}
 
 env:
@@ -19,11 +21,16 @@ jobs:
       - name: Determine image tags
         id: meta
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          {
-            echo "version=${VERSION}"
-            echo "tags=${IMAGE_NAME}:${VERSION},${IMAGE_NAME}:latest"
-          } >> "$GITHUB_OUTPUT"
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+            TAGS="${IMAGE_NAME}:${VERSION},${IMAGE_NAME}:latest"
+          else
+            # Push to main (e.g. a merged PR) or manual dispatch on a branch:
+            # publish a rolling tag, distinct from the versioned/`latest`
+            # tags which are only ever set from an actual `vX.Y.Z` release.
+            TAGS="${IMAGE_NAME}:main"
+          fi
+          echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

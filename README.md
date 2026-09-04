@@ -1,11 +1,15 @@
 # hdl-docker
 
 A Docker image bundling [Yosys](https://github.com/YosysHQ/yosys),
-[GHDL](https://github.com/ghdl/ghdl) and [NVC](https://github.com/nickg/nvc).
+[GHDL](https://github.com/ghdl/ghdl), [NVC](https://github.com/nickg/nvc),
+[vhdl_ls](https://github.com/VHDL-LS/rust_hdl) and
+[veridian](https://github.com/vivekmalneedi/veridian).
 GHDL is wired in as a Yosys synthesis plugin via
 [ghdl-yosys-plugin](https://github.com/ghdl/ghdl-yosys-plugin), so you can
 synthesize VHDL designs directly with `yosys -m ghdl`. NVC is included as a
 fast, standalone VHDL simulator alongside GHDL's own simulation mode.
+vhdl_ls and veridian are language servers (VHDL and SystemVerilog
+respectively) for editor/IDE integration.
 
 ## Image
 
@@ -27,6 +31,10 @@ yosys -m ghdl -p 'ghdl design.vhdl -e top; synth_ice40 -json design.json'
 
 # Simulate with NVC instead of/in addition to GHDL:
 nvc -a design.vhdl -e top -r
+
+# Language servers (for editor/IDE integration, not typically run by hand):
+vhdl_ls --help
+veridian --help
 ```
 
 Or run a single command directly:
@@ -46,6 +54,12 @@ Pinned in [`Dockerfile`](./Dockerfile) build args:
 | Yosys                | built from source at a pinned tag                                 |
 | ghdl-yosys-plugin    | built from source against the GHDL/Yosys above, at a pinned ref  |
 | NVC                  | prebuilt `.deb` release package                                  |
+| vhdl_ls              | prebuilt release zip                                              |
+| veridian             | built from source at a pinned commit (no stable releases exist)  |
+
+Install convention: use a prebuilt release when the upstream project
+publishes one for Linux x86_64/ubuntu24.04; otherwise build from source at a
+pinned tag/commit.
 
 ## Building locally
 
@@ -55,10 +69,17 @@ docker build -t hdl-docker .
 
 ## Releasing
 
-Pushing a git tag matching `v*` (e.g. `v1.0.0`) triggers
-[`.github/workflows/docker-publish.yml`](./.github/workflows/docker-publish.yml),
-which builds the image and pushes `ru551n/hdl-docker:vX.Y.Z` and
-`ru551n/hdl-docker:latest` to Docker Hub.
+[`.github/workflows/docker-publish.yml`](./.github/workflows/docker-publish.yml)
+builds and pushes the image to Docker Hub in two cases:
+
+- Pushing a git tag matching `v*` (e.g. `v1.0.0`) pushes
+  `ru551n/hdl-docker:X.Y.Z` and `ru551n/hdl-docker:latest`.
+- A merge to `main` (e.g. a merged pull request) pushes
+  `ru551n/hdl-docker:main` — a rolling tag tracking the tip of `main`,
+  separate from the versioned/`latest` tags which only ever move on an
+  actual tagged release.
+
+It can also be run manually via `workflow_dispatch`.
 
 This requires the following repository secrets to be set (Settings ->
 Secrets and variables -> Actions):

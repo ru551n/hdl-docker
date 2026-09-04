@@ -31,3 +31,5 @@ jobs:
           docker run --rm hdl-docker:ci ghdl --version
           docker run --rm hdl-docker:ci yosys -m ghdl -p 'help ghdl'
           docker run --rm hdl-docker:ci nvc --version
+          docker run --rm hdl-docker:ci vhdl_ls --help
+          docker run --rm hdl-docker:ci veridian --help
