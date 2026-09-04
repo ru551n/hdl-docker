@@ -69,10 +69,17 @@ docker build -t hdl-docker .
 
 ## Releasing
 
-Pushing a git tag matching `v*` (e.g. `v1.0.0`) triggers
-[`.github/workflows/docker-publish.yml`](./.github/workflows/docker-publish.yml),
-which builds the image and pushes `ru551n/hdl-docker:vX.Y.Z` and
-`ru551n/hdl-docker:latest` to Docker Hub.
+[`.github/workflows/docker-publish.yml`](./.github/workflows/docker-publish.yml)
+builds and pushes the image to Docker Hub in two cases:
+
+- Pushing a git tag matching `v*` (e.g. `v1.0.0`) pushes
+  `ru551n/hdl-docker:X.Y.Z` and `ru551n/hdl-docker:latest`.
+- A merge to `main` (e.g. a merged pull request) pushes
+  `ru551n/hdl-docker:main` — a rolling tag tracking the tip of `main`,
+  separate from the versioned/`latest` tags which only ever move on an
+  actual tagged release.
+
+It can also be run manually via `workflow_dispatch`.
 
 This requires the following repository secrets to be set (Settings ->
 Secrets and variables -> Actions):
