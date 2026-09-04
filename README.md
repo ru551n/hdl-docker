@@ -1,10 +1,11 @@
 # hdl-docker
 
-A Docker image bundling [Yosys](https://github.com/YosysHQ/yosys) and
-[GHDL](https://github.com/ghdl/ghdl), with GHDL wired in as a Yosys
-synthesis plugin via
-[ghdl-yosys-plugin](https://github.com/ghdl/ghdl-yosys-plugin). This lets
-you synthesize VHDL designs directly with `yosys -m ghdl`.
+A Docker image bundling [Yosys](https://github.com/YosysHQ/yosys),
+[GHDL](https://github.com/ghdl/ghdl) and [NVC](https://github.com/nickg/nvc).
+GHDL is wired in as a Yosys synthesis plugin via
+[ghdl-yosys-plugin](https://github.com/ghdl/ghdl-yosys-plugin), so you can
+synthesize VHDL designs directly with `yosys -m ghdl`. NVC is included as a
+fast, standalone VHDL simulator alongside GHDL's own simulation mode.
 
 ## Image
 
@@ -21,7 +22,11 @@ docker run --rm -it -v "$PWD":/work ru551n/hdl-docker bash
 
 # Inside the container:
 ghdl --version
+nvc --version
 yosys -m ghdl -p 'ghdl design.vhdl -e top; synth_ice40 -json design.json'
+
+# Simulate with NVC instead of/in addition to GHDL:
+nvc -a design.vhdl -e top -r
 ```
 
 Or run a single command directly:
@@ -40,6 +45,7 @@ Pinned in [`Dockerfile`](./Dockerfile) build args:
 | GHDL                 | prebuilt release tarball (`mcode` backend)                       |
 | Yosys                | built from source at a pinned tag                                 |
 | ghdl-yosys-plugin    | built from source against the GHDL/Yosys above, at a pinned ref  |
+| NVC                  | prebuilt `.deb` release package                                  |
 
 ## Building locally
 

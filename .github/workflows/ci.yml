@@ -30,3 +30,4 @@ jobs:
         run: |
           docker run --rm hdl-docker:ci ghdl --version
           docker run --rm hdl-docker:ci yosys -m ghdl -p 'help ghdl'
+          docker run --rm hdl-docker:ci nvc --version
