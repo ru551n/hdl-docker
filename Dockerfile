@@ -140,6 +140,11 @@ RUN make GHDL=ghdl YOSYS_CONFIG=yosys-config \
 # re-export that current stable rustc now rejects as a hard error (E0659,
 # https://github.com/rust-lang/rust/issues/145575) - this used to be
 # tolerated. 1.82.0 predates that resolver change.
+# `cargo install --locked` (below) is required too: without it, cargo
+# re-resolves dependencies against current crates.io and picks a newer
+# `idna_adapter` that requires the (still-unstable-on-1.82.0) edition2024
+# Cargo feature. The pinned commit's checked-in Cargo.lock predates that
+# dependency entirely.
 ##############################################################################
 FROM ubuntu:24.04 AS veridian-build
 ARG VERIDIAN_REF
@@ -159,7 +164,7 @@ RUN git clone https://github.com/vivekmalneedi/veridian.git /src/veridian \
     && git checkout "${VERIDIAN_REF}"
 
 WORKDIR /src/veridian
-RUN cargo install --path . --root "${VERIDIAN_PREFIX}" \
+RUN cargo install --locked --path . --root "${VERIDIAN_PREFIX}" \
     && "${VERIDIAN_PREFIX}/bin/veridian" --help > /dev/null
 
 ##############################################################################
