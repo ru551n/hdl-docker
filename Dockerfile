@@ -134,17 +134,24 @@ RUN make GHDL=ghdl YOSYS_CONFIG=yosys-config \
 # stable release exists upstream (only a mutable "nightly" prerelease tag
 # whose asset gets overwritten in place), so pin to a specific commit SHA
 # instead for reproducible builds.
+#
+# Toolchain pinned to 1.82.0 (not "stable"): veridian's transitive
+# dependency sv-parser 0.8.3 (unmaintained) has an ambiguous glob
+# re-export that current stable rustc now rejects as a hard error (E0659,
+# https://github.com/rust-lang/rust/issues/145575) - this used to be
+# tolerated. 1.82.0 predates that resolver change.
 ##############################################################################
 FROM ubuntu:24.04 AS veridian-build
 ARG VERIDIAN_REF
 ARG VERIDIAN_PREFIX
+ARG VERIDIAN_RUST_VERSION=1.82.0
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         ca-certificates curl git build-essential pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
-        | sh -s -- -y --profile minimal --default-toolchain stable
+        | sh -s -- -y --profile minimal --default-toolchain "${VERIDIAN_RUST_VERSION}"
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 RUN git clone https://github.com/vivekmalneedi/veridian.git /src/veridian \
