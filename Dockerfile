@@ -17,6 +17,24 @@
 #   - vhdl_ls:               prebuilt release zip (VHDL language server, bundles vhdl_libraries)
 #   - veridian:              built from source at a pinned commit (SystemVerilog language server;
 #                            upstream only publishes a mutable "nightly" prerelease, no stable tags)
+#
+# The runtime image also carries a C compiler (gcc + libc6-dev). Some HDL
+# tooling compiles native code at *run* time rather than at install time --
+# VUnit's VHDL-to-Python bridge builds its shared library on first use, for
+# instance -- and without a compiler in the image that fails at simulation
+# time, far from anything that looks like a missing build dependency.
+#
+# libc6-dev is listed explicitly and is NOT redundant: this image installs
+# with --no-install-recommends, and libc6-dev is only a *Recommends* of gcc.
+# Leave it out and gcc is present but cannot compile anything that includes a
+# standard header.
+#
+# Python is deliberately NOT shipped. Anything compiling against a Python
+# interpreter must match the interpreter that will actually run -- a consumer
+# using a uv- or pyenv-managed venv gets no benefit from this image's system
+# Python headers, and would silently build against the wrong ones. Consumers
+# install their own python3/python3-dev, which they are already doing to get
+# a venv at all.
 
 ARG GHDL_VERSION=6.0.0
 ARG YOSYS_VERSION=v0.68
@@ -185,6 +203,7 @@ COPY --from=nvc-fetch /tmp/nvc.deb /tmp/nvc.deb
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libffi8 zlib1g libtcl8.6 libreadline8 libtinfo6 ca-certificates \
         libgnat-13 \
+        gcc libc6-dev \
         /tmp/nvc.deb \
     && rm -rf /var/lib/apt/lists/* /tmp/nvc.deb \
     && useradd --create-home --shell /bin/bash hdl
@@ -202,7 +221,10 @@ ENV PATH="${YOSYS_PREFIX}/bin:${GHDL_PREFIX}/bin:${VHDL_LS_PREFIX}/bin:${VERIDIA
 RUN yosys -m ghdl -p 'help ghdl' > /dev/null \
     && nvc --version \
     && vhdl_ls --help > /dev/null \
-    && veridian --help > /dev/null
+    && veridian --help > /dev/null \
+    && printf '#include <stdio.h>\nint main(void){return 0;}\n' > /tmp/cc-check.c \
+    && gcc -shared -fPIC -o /tmp/cc-check.so /tmp/cc-check.c \
+    && rm -f /tmp/cc-check.c /tmp/cc-check.so
 
 WORKDIR /work
 USER hdl
