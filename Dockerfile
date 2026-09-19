@@ -51,7 +51,7 @@ ARG VERIDIAN_PREFIX=/opt/veridian
 ##############################################################################
 # Stage: fetch prebuilt GHDL (mcode backend, relocatable, ubuntu24.04 x86_64)
 ##############################################################################
-FROM ubuntu:24.04 AS ghdl-fetch
+FROM ubuntu:26.04 AS ghdl-fetch
 ARG GHDL_VERSION
 ARG GHDL_PREFIX
 
@@ -69,7 +69,7 @@ RUN curl -fsSL -o /tmp/ghdl.tar.gz \
 ##############################################################################
 # Stage: fetch prebuilt NVC .deb (standalone VHDL simulator, unrelated to GHDL)
 ##############################################################################
-FROM ubuntu:24.04 AS nvc-fetch
+FROM ubuntu:26.04 AS nvc-fetch
 ARG NVC_VERSION
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -84,7 +84,7 @@ RUN curl -fsSL -o /tmp/nvc.deb \
 # vhdl_libraries/ side by side, which is exactly the layout vhdl_ls expects
 # relative to its own binary)
 ##############################################################################
-FROM ubuntu:24.04 AS vhdl-ls-fetch
+FROM ubuntu:26.04 AS vhdl-ls-fetch
 ARG VHDL_LS_VERSION
 ARG VHDL_LS_PREFIX
 
@@ -104,7 +104,7 @@ RUN curl -fsSL -o /tmp/vhdl_ls.zip \
 ##############################################################################
 # Stage: build Yosys from source
 ##############################################################################
-FROM ubuntu:24.04 AS yosys-build
+FROM ubuntu:26.04 AS yosys-build
 ARG YOSYS_VERSION
 ARG YOSYS_PREFIX
 
@@ -124,7 +124,7 @@ RUN cmake -B build . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="${YOSYS_
 ##############################################################################
 # Stage: build ghdl-yosys-plugin against the GHDL + Yosys above
 ##############################################################################
-FROM ubuntu:24.04 AS plugin-build
+FROM ubuntu:26.04 AS plugin-build
 ARG GHDL_YOSYS_PLUGIN_REF
 ARG GHDL_PREFIX
 ARG YOSYS_PREFIX
@@ -164,7 +164,7 @@ RUN make GHDL=ghdl YOSYS_CONFIG=yosys-config \
 # Cargo feature. The pinned commit's checked-in Cargo.lock predates that
 # dependency entirely.
 ##############################################################################
-FROM ubuntu:24.04 AS veridian-build
+FROM ubuntu:26.04 AS veridian-build
 ARG VERIDIAN_REF
 ARG VERIDIAN_PREFIX
 ARG VERIDIAN_RUST_VERSION=1.82.0
@@ -188,7 +188,7 @@ RUN cargo install --locked --path . --root "${VERIDIAN_PREFIX}" \
 ##############################################################################
 # Stage: final runtime image
 ##############################################################################
-FROM ubuntu:24.04 AS final
+FROM ubuntu:26.04 AS final
 ARG GHDL_PREFIX
 ARG YOSYS_PREFIX
 ARG VHDL_LS_PREFIX
